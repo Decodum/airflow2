@@ -9,10 +9,10 @@ import psycopg2
 
 
 #расположим функцию реквест модуля
-pg_hostname = 'localhost'  
-pg_port = '5430'  
-pg_username = 'postgres'  
-pg_pass = 'password'    
+pg_hostname = 'localhost'  # Имя вашего контейнера
+pg_port = '5430'    # Порт, на котором слушает PostgreSQL
+pg_username = 'postgres'  # Имя пользователя
+pg_pass = 'password'      # Пароль
 pg_db = 'test'    
 
 

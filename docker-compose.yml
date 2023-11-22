@@ -92,7 +92,7 @@ services:
   db:
     image: postgres
     ports:
-      - 5430:5432
+      - 5430:5430
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -100,6 +100,7 @@ services:
     volumes:
       - db_vol:/var/lib/postgresql/data
       - ./postgres/init_scripts/task1.sql:/docker-entrypoint-initdb.d/init.sql
+      
       
 
   redis:
