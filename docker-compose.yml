@@ -89,17 +89,17 @@ services:
       retries: 5
     restart: always
 
-  db:
-    image: postgres
-    ports:
-      - 5430:5430
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: test
-    volumes:
-      - db_vol:/var/lib/postgresql/data
-      - ./postgres/init_scripts/task1.sql:/docker-entrypoint-initdb.d/init.sql
+  # db:
+  #   image: postgres
+  #   ports:
+  #     - 5430:5432
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: test
+  #   volumes:
+  #     - db_vol:/var/lib/postgresql/data
+  #     - ./postgres/init_scripts/task1.sql:/docker-entrypoint-initdb.d/init.sql
       
       
 

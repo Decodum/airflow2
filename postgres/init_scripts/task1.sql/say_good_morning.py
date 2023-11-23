@@ -9,10 +9,10 @@ import psycopg2
 
 
 #расположим функцию реквест модуля
-pg_hostname = 'localhost'  # Имя вашего контейнера
-pg_port = '5430'    # Порт, на котором слушает PostgreSQL
-pg_username = 'postgres'  # Имя пользователя
-pg_pass = 'password'      # Пароль
+pg_hostname = 'localhost'  
+pg_port = '5430'  
+pg_username = 'postgres'  
+pg_pass = 'password'    
 pg_db = 'test'    
 
 
@@ -24,6 +24,7 @@ default_args = {
     'template_searchpath': '/tmp'
 }
 
+
 def fetch_exchange_rate():
     rate_base = 'GBR'
     rate_target = 'USD'
@@ -34,7 +35,7 @@ def fetch_exchange_rate():
     url = url_base + hist_date
     response = req.get(url, params={'from': rate_base, 'access_key': api_key})
     
-    # Получаем текущую дату
+
     
     url = f'http://api.exchangerate.host/live'
     response = req.get(url, params={'access_key': api_key, 
@@ -48,21 +49,24 @@ def fetch_exchange_rate():
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS test_table (
                id serial primary key,
-               date date,
+               timestamp timestamp,
                source varchar(255),
                currencies varchar(255),
                rate double precision);""")
     conn.commit()
-
-    insert_query = """
-    INSERT INTO test_table (date, source, currencies, rate) VALUES 
-    {data['date'], data['source'], 'USD', data['quotes']['BTCUSD']}
+    data['timestamp'] = datetime.utcfromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+    insert_query = f"""
+    INSERT INTO test_table (timestamp, source, currencies, rate) VALUES 
+    {data['timestamp'], data['source'], 'USD', data['quotes']['BTCUSD']}
     """
-    cursor.execute(insert_query, (data['date'], data['source'], 'USD', data['quotes']['BTCUSD']))
+    cursor.execute(insert_query)
+    #cursor.execute(insert_query, (data['date'], data['source'], 'USD', data['quotes']['BTCUSD']))
     conn.commit()
 
     cursor.close()
     conn.close()
+
+
 
 with DAG(dag_id='say_good_morning',
          default_args=default_args,

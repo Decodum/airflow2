@@ -1,39 +1,19 @@
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.python_operator import PythonOperator 
 import requests as req
 import psycopg2
-from airflow.models import Variable
 #import psycopg2-binary as ps2
 
 
 #расположим функцию реквест модуля
-pg_hostname = 'postgres'  
-pg_port = '5432'  
-pg_username = 'airflow'  
-pg_pass = 'airflow'    
-pg_db = 'airflow'    
-
-
-default_args = {
-    'owner': 'julia',
-    'retries': 1,
-    'retry_delay': timedelta(minutes=1),
-    'start_date': datetime(2023, 10, 19),
-    'template_searchpath': '/tmp'
-}
+pg_hostname = 'localhost'  
+pg_port = '5430'  
+pg_username = 'postgres'  
+pg_pass = 'password'    
+pg_db = 'test'    
 
 
 
 def fetch_exchange_rate():
-    # pg_hostname = Variable.get("pg_hostname")
-    # pg_port = Variable.get("pg_port")
-    # pg_username = Variable.get("pg_username")
-    # pg_pass = Variable.get("pg_pass")
-    # pg_db = Variable.get("pg_db")
-
     rate_base = 'GBR'
     rate_target = 'USD'
     api_key = '70a6700beb16e5edbe55e49dc12369e9'
@@ -62,41 +42,15 @@ def fetch_exchange_rate():
                currencies varchar(255),
                rate double precision);""")
     conn.commit()
-
     data['timestamp'] = datetime.utcfromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
     insert_query = f"""
     INSERT INTO test_table (timestamp, source, currencies, rate) VALUES 
     {data['timestamp'], data['source'], 'USD', data['quotes']['BTCUSD']}
     """
-
     cursor.execute(insert_query)
     #cursor.execute(insert_query, (data['date'], data['source'], 'USD', data['quotes']['BTCUSD']))
     conn.commit()
     cursor.close()
     conn.close()
 
-
-
-with DAG(dag_id='say_good_morning',
-         default_args=default_args,
-         description="say_good_morning example DAG",
-         schedule_interval=timedelta(minutes=10),
-         tags=["bash", "Julia"],
-         catchup=False) as dag:
-    
-    start = DummyOperator(task_id='start')
-    
-    good_morning = BashOperator(
-        task_id='good_morning',
-        bash_command=f"echo 'Good morning!' && mkdir -p /tmp/test")
-     
-    fetch_data_task = PythonOperator(
-        task_id="fetch_exchange_rate",
-        python_callable=fetch_exchange_rate
-        
-    )
-
-
-    end = DummyOperator(task_id='end')
-
-    start >> good_morning >> fetch_data_task >> end
+fetch_exchange_rate()
